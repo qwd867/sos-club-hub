@@ -122,6 +122,10 @@ nlohmann::json QuestService::getUserQuests(int64_t user_id) {
 }
 
 nlohmann::json QuestService::reportProgress(int64_t user_id, const std::string& quest_key, int increment) {
+    db_.ensure_user_quests_initialized(user_id);
+    refreshDailyQuests(user_id);
+    refreshWeeklyQuests(user_id);
+
     auto all_quests = db_.get_all_quests();
     int quest_id = -1;
     int target_progress = 1;
