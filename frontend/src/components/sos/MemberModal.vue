@@ -94,9 +94,7 @@ const sectionTitleStyle = computed(() => ({
   justify-content: center;
   align-items: center;
   padding: 20px;
-  background: rgba(20, 20, 40, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(30, 30, 60, 0.55);
 }
 
 .modal-content {
@@ -106,11 +104,10 @@ const sectionTitleStyle = computed(() => ({
   max-height: 90vh;
   overflow-y: auto;
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2), 0 0 40px var(--member-color)20;
+  background: rgba(250, 250, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25), 0 0 40px var(--member-color)20;
+  will-change: transform, opacity;
 }
 
 .close-btn {

@@ -3,7 +3,7 @@
     <!-- 背景 -->
     <div class="sos-bg"></div>
     <div class="sos-particles">
-      <span v-for="n in 20" :key="n" :style="particleStyle(n)"></span>
+      <span v-for="n in 10" :key="n" :style="particleStyle(n)"></span>
     </div>
 
     <!-- 顶部导航 -->
@@ -234,6 +234,7 @@ const members = [
   background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 40%, #fff0f5 70%, #fff8e0 100%);
   background-size: 400% 400%;
   animation: gradientFlow 20s ease infinite;
+  will-change: background-position;
 }
 
 @keyframes gradientFlow {
@@ -255,7 +256,6 @@ const members = [
   position: absolute;
   border-radius: 50%;
   animation: particleFloat linear infinite;
-  filter: blur(1px);
 }
 
 @keyframes particleFloat {
@@ -282,6 +282,8 @@ const members = [
   justify-content: space-between;
   align-items: center;
   padding: 16px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -418,9 +420,15 @@ const members = [
 }
 
 .members-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 28px;
+}
+
+.members-grid > * {
+  flex: 0 0 220px;
+  max-width: 260px;
 }
 
 /* 页脚 */
@@ -460,8 +468,11 @@ const members = [
     padding: 50px 20px;
   }
   .members-grid {
-    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+  }
+  .members-grid > * {
+    flex: 0 0 calc(50% - 8px);
+    max-width: none;
   }
   .sos-nav {
     padding: 12px 20px;
@@ -469,8 +480,9 @@ const members = [
 }
 
 @media (max-width: 480px) {
-  .members-grid {
-    grid-template-columns: 1fr;
+  .members-grid > * {
+    flex: 0 0 100%;
+    max-width: 320px;
   }
   .hero-title {
     font-size: 24px;
