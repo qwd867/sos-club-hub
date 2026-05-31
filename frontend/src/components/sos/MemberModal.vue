@@ -53,22 +53,22 @@
             </div>
           </div>
         </div>
+
+        <!-- 浮动文字层（在 modal-content 内部） -->
+        <div class="float-layer">
+          <TransitionGroup name="float">
+            <div
+              v-for="item in floatingTexts"
+              :key="item.id"
+              class="float-text"
+              :style="item.style"
+            >
+              {{ item.text }}
+            </div>
+          </TransitionGroup>
+        </div>
       </div>
     </Transition>
-
-    <!-- 浮动文字层 -->
-    <div class="float-layer">
-      <TransitionGroup name="float">
-        <div
-          v-for="item in floatingTexts"
-          :key="item.id"
-          class="float-text"
-          :style="item.style"
-        >
-          {{ item.text }}
-        </div>
-      </TransitionGroup>
-    </div>
   </Teleport>
 </template>
 
@@ -120,8 +120,10 @@ const ratingClass = computed(() => {
 
 function spawnFloatText(text) {
   const id = ++floatId
-  const angle = (Math.random() - 0.5) * 60 // -30 ~ 30 deg
-  const startX = 50 + (Math.random() - 0.5) * 20 // 40% ~ 60%
+  const angle = (Math.random() - 0.5) * 40 // -20 ~ 20 deg
+  // 在 modal-left 区域（左侧 0~35%）随机分布，避免与右侧详情文字重叠
+  const startX = 5 + Math.random() * 25 // 5% ~ 30%
+  const startY = 25 + Math.random() * 35 // 25% ~ 60%（垂直方向覆盖头像+按钮区域）
   const size = 14 + Math.min(comboCount.value * 1.5, 12)
   const color = props.member.color
 
@@ -130,7 +132,7 @@ function spawnFloatText(text) {
     text,
     style: {
       left: `${startX}%`,
-      bottom: '35%',
+      top: `${startY}%`,
       transform: `rotate(${angle}deg)`,
       fontSize: `${size}px`,
       color,
@@ -422,10 +424,12 @@ const interactBtnStyle = computed(() => ({
 
 /* 浮动文字 */
 .float-layer {
-  position: fixed;
+  position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 2000;
+  z-index: 10;
+  overflow: hidden;
+  border-radius: 24px;
 }
 
 .float-text {
@@ -440,7 +444,7 @@ const interactBtnStyle = computed(() => ({
 }
 
 .float-leave-active {
-  transition: all 0.4s ease;
+  transition: all 0.5s ease;
 }
 
 .float-enter-from {
@@ -450,7 +454,7 @@ const interactBtnStyle = computed(() => ({
 
 .float-leave-to {
   opacity: 0;
-  transform: translateY(-80px) scale(1.2) !important;
+  transform: translateY(-100px) scale(1.2) !important;
 }
 
 .modal-enter-active,
