@@ -66,6 +66,11 @@
         <p>加载中...</p>
       </div>
 
+      <!-- 弹窗 -->
+      <ConfettiCanvas ref="confettiRef" />
+      <QuestClaimModal v-model="showClaimModal" :points="claimPoints" @share="handleShare" />
+      <HaruhiCongratsModal v-model="showCongratsModal" :bonus-points="200" />
+
       <!-- 商店入口 -->
       <div class="shop-section">
         <router-link to="/sos/shop" class="shop-link">
@@ -83,10 +88,18 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuestStore } from '../stores/quests.js'
 import QuestCard from '../components/quests/QuestCard.vue'
+import ConfettiCanvas from '../components/quests/ConfettiCanvas.vue'
+import QuestClaimModal from '../components/quests/QuestClaimModal.vue'
+import HaruhiCongratsModal from '../components/quests/HaruhiCongratsModal.vue'
 
 const router = useRouter()
 const questStore = useQuestStore()
 const activeTab = ref('daily')
+const confettiRef = ref(null)
+const showClaimModal = ref(false)
+const claimPoints = ref(0)
+const showCongratsModal = ref(false)
+const prevDailyCompleted = ref(0)
 
 const tabs = [
   { key: 'daily', label: '每日委托' },
@@ -106,14 +119,38 @@ function goBack() {
 
 async function handleClaim(questId) {
   try {
-    await questStore.claimReward(questId)
+    const quest = [...questStore.dailyQuests, ...questStore.weeklyQuests, ...questStore.legendaryQuests]
+      .find(q => q.id === questId)
+    const beforeCompleted = questStore.dailyCompleted
+    const res = await questStore.claimReward(questId)
+    claimPoints.value = quest?.points_reward || 0
+    showClaimModal.value = true
+    if (confettiRef.value) confettiRef.value.spawn()
+
+    // 检测是否刚完成全部每日委托
+    if (quest?.type === 'daily' && beforeCompleted + 1 >= questStore.dailyTotal && beforeCompleted < questStore.dailyTotal) {
+      setTimeout(() => {
+        showCongratsModal.value = true
+      }, 1500)
+    }
   } catch (e) {
     // 错误已在 store 中处理
   }
 }
 
+function handleShare() {
+  const text = `我刚刚在SOS团任务板完成了任务，获得了${claimPoints.value}贡献值！一起来加入凉宫春日的团吧！`
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text)
+    alert('分享文案已复制到剪贴板！')
+  } else {
+    alert(text)
+  }
+}
+
 onMounted(() => {
   questStore.fetchQuests()
+  prevDailyCompleted.value = questStore.dailyCompleted
 })
 </script>
 

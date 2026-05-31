@@ -36,6 +36,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/sos/shop',
+      name: 'shop',
+      component: () => import('../views/TsuruyaShop.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/demo',
       redirect: '/sos'
     },
