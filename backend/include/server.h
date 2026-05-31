@@ -3,6 +3,7 @@
 
 #include "auth_service.h"
 #include "database_manager.h"
+#include "quest_service.h"
 #include "router.h"
 #include "httplib.h"
 #include <string>
@@ -20,6 +21,7 @@ private:
     httplib::Server svr_;
     DatabaseManager& db_;
     AuthService auth_service_;
+    QuestService quest_service_;
     Router router_;
 };
 

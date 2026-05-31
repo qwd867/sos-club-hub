@@ -3,7 +3,7 @@
 
 Server::Server(const std::string& host, int port)
     : host_(host), port_(port), db_(DatabaseManager::get_instance()),
-      auth_service_(db_), router_(auth_service_) {}
+      auth_service_(db_), quest_service_(db_), router_(auth_service_, quest_service_) {}
 
 bool Server::start() {
     if (!db_.initialize("auth.db")) {

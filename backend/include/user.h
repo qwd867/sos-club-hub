@@ -16,6 +16,7 @@ public:
     const std::string& get_username() const;
     int64_t get_created_at() const;
     int64_t get_updated_at() const;
+    int64_t get_quest_points() const;
 
     void set_id(int64_t id);
     void set_email(const std::string& email);
@@ -23,6 +24,7 @@ public:
     void set_username(const std::string& username);
     void set_created_at(int64_t created_at);
     void set_updated_at(int64_t updated_at);
+    void set_quest_points(int64_t quest_points);
 
 private:
     int64_t id_;
@@ -31,6 +33,7 @@ private:
     std::string username_;
     int64_t created_at_;
     int64_t updated_at_;
+    int64_t quest_points_;
 };
 
 #endif

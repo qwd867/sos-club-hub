@@ -14,6 +14,7 @@ add_executable(auth_server
     src/http_response.cpp
     src/database_manager.cpp
     src/auth_service.cpp
+    src/quest_service.cpp
     src/router.cpp
     src/server.cpp
     third_party/sqlite3.c
