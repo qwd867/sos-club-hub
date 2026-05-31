@@ -54,11 +54,13 @@
     <MemberModal v-model="modalOpen" :member="selectedMember" @interact="handleInteract" />
 
     <!-- Toast 提示 -->
-    <Transition name="toast">
-      <div v-if="toastVisible" class="toast-msg" :class="toastType">
-        {{ toastText }}
-      </div>
-    </Transition>
+    <Teleport to="body">
+      <Transition name="toast">
+        <div v-if="toastVisible" class="toast-msg" :class="toastType">
+          {{ toastText }}
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 

@@ -70,8 +70,9 @@ export const useQuestStore = defineStore('quests', () => {
         }
         return data
       }
+      throw new Error(res.data.message || '上报进度失败')
     } catch (e) {
-      error.value = e.response?.data?.message || '上报进度失败'
+      error.value = e.response?.data?.message || e.message || '上报进度失败'
       throw e
     }
   }
@@ -91,8 +92,9 @@ export const useQuestStore = defineStore('quests', () => {
         }
         return data
       }
+      throw new Error(res.data.message || '领取奖励失败')
     } catch (e) {
-      error.value = e.response?.data?.message || '领取奖励失败'
+      error.value = e.response?.data?.message || e.message || '领取奖励失败'
       throw e
     }
   }

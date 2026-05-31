@@ -72,6 +72,15 @@
       <HaruhiCongratsModal v-model="showCongratsModal" :bonus-points="200" />
       <BrainstormModal v-model="showBrainstormModal" @success="handleBrainstormSuccess" />
 
+      <!-- Toast -->
+      <Teleport to="body">
+        <Transition name="toast">
+          <div v-if="toastVisible" class="toast-msg" :class="toastType">
+            {{ toastText }}
+          </div>
+        </Transition>
+      </Teleport>
+
       <!-- 商店入口 -->
       <div class="shop-section">
         <router-link to="/sos/shop" class="shop-link">
@@ -104,6 +113,21 @@ const showCongratsModal = ref(false)
 const showBrainstormModal = ref(false)
 const prevDailyCompleted = ref(0)
 
+const toastVisible = ref(false)
+const toastText = ref('')
+const toastType = ref('success')
+let toastTimer = null
+
+function showToast(text, type = 'success') {
+  toastText.value = text
+  toastType.value = type
+  toastVisible.value = true
+  if (toastTimer) clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => {
+    toastVisible.value = false
+  }, 2500)
+}
+
 const tabs = [
   { key: 'daily', label: '每日委托' },
   { key: 'weekly', label: '周常挑战' },
@@ -132,9 +156,16 @@ async function handleClaim(questId) {
       return
     }
 
-    const res = await questStore.claimReward(questId)
+    // 如果任务不是 completed 状态，提示用户
+    if (quest?.status !== 'completed') {
+      showToast('任务还未完成，无法领取奖励', 'error')
+      return
+    }
+
+    await questStore.claimReward(questId)
     claimPoints.value = quest?.points_reward || 0
     showClaimModal.value = true
+    showToast(`成功领取 ${quest?.points_reward || 0} SOSpt！`, 'success')
     if (confettiRef.value) confettiRef.value.spawn()
 
     // 检测是否刚完成全部每日委托
@@ -144,7 +175,7 @@ async function handleClaim(questId) {
       }, 1500)
     }
   } catch (e) {
-    // 错误已在 store 中处理
+    showToast(questStore.error || '领取失败，请稍后重试', 'error')
   }
 }
 
@@ -420,6 +451,44 @@ onMounted(() => {
 
 .shop-icon {
   font-size: 18px;
+}
+
+.toast-msg {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.toast-msg.success {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.toast-msg.error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.35s ease;
+}
+
+.toast-enter-from {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+}
+
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
 }
 
 /* 响应式 */
