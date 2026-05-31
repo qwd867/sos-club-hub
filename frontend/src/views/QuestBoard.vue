@@ -57,6 +57,7 @@
           :key="quest.id"
           :quest="quest"
           @claim="handleClaim"
+          @share="handleShareOpen"
         />
         <div v-if="currentQuests.length === 0" class="empty-state">
           <p>暂无任务</p>
@@ -190,14 +191,18 @@ async function handleBrainstormSuccess() {
   }
 }
 
+function handleShareOpen(quest) {
+  claimPoints.value = quest?.points_reward || 0
+  claimQuestName.value = quest?.name || '神秘任务'
+  showClaimModal.value = true
+}
+
 function handleShare() {
   const name = claimQuestName.value || '神秘任务'
-  const text = `我刚刚在SOS团任务板完成了「${name}」，获得了${claimPoints.value} SOSpt！
-
-——让世界变得更热闹的凉宫春日的团，一起来加入吧！`
+  const text = `我刚刚在SOS团任务板完成了「${name}」，获得了${claimPoints.value} SOSpt！\n\n——让世界变得更热闹的凉宫春日的团，一起来加入吧！`
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text)
-    alert('分享文案已复制到剪贴板！')
+    showToast('分享文案已复制到剪贴板！', 'success')
   } else {
     alert(text)
   }

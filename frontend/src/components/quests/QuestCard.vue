@@ -42,7 +42,13 @@
       >
         领取
       </button>
-      <span v-else-if="isClaimed" class="status-text claimed">已领取</span>
+      <button
+        v-else-if="isClaimed"
+        class="share-btn"
+        @click.stop="$emit('share', quest)"
+      >
+        分享
+      </button>
       <span v-else-if="isLocked" class="status-text locked">未解锁</span>
       <span v-else class="status-text">进行中</span>
     </div>
@@ -56,7 +62,7 @@ const props = defineProps({
   quest: { type: Object, required: true }
 })
 
-defineEmits(['claim'])
+defineEmits(['claim', 'share'])
 
 const typeClass = computed(() => `type-${props.quest.type}`)
 const statusClass = computed(() => `status-${props.quest.status}`)
@@ -301,6 +307,24 @@ const progressPercent = computed(() => {
 .claim-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5);
+}
+
+.share-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+.share-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 .status-text {
