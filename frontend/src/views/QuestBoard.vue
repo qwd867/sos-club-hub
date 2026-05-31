@@ -70,6 +70,7 @@
       <ConfettiCanvas ref="confettiRef" />
       <QuestClaimModal v-model="showClaimModal" :points="claimPoints" @share="handleShare" />
       <HaruhiCongratsModal v-model="showCongratsModal" :bonus-points="200" />
+      <BrainstormModal v-model="showBrainstormModal" @success="handleBrainstormSuccess" />
 
       <!-- 商店入口 -->
       <div class="shop-section">
@@ -91,6 +92,7 @@ import QuestCard from '../components/quests/QuestCard.vue'
 import ConfettiCanvas from '../components/quests/ConfettiCanvas.vue'
 import QuestClaimModal from '../components/quests/QuestClaimModal.vue'
 import HaruhiCongratsModal from '../components/quests/HaruhiCongratsModal.vue'
+import BrainstormModal from '../components/quests/BrainstormModal.vue'
 
 const router = useRouter()
 const questStore = useQuestStore()
@@ -99,6 +101,7 @@ const confettiRef = ref(null)
 const showClaimModal = ref(false)
 const claimPoints = ref(0)
 const showCongratsModal = ref(false)
+const showBrainstormModal = ref(false)
 const prevDailyCompleted = ref(0)
 
 const tabs = [
@@ -122,6 +125,13 @@ async function handleClaim(questId) {
     const quest = [...questStore.dailyQuests, ...questStore.weeklyQuests, ...questStore.legendaryQuests]
       .find(q => q.id === questId)
     const beforeCompleted = questStore.dailyCompleted
+
+    // 如果是脑洞任务且未完成，先打开互动弹窗
+    if (quest?.quest_key === 'daily_brainstorm' && quest?.status !== 'completed' && quest?.status !== 'claimed') {
+      showBrainstormModal.value = true
+      return
+    }
+
     const res = await questStore.claimReward(questId)
     claimPoints.value = quest?.points_reward || 0
     showClaimModal.value = true
@@ -135,6 +145,15 @@ async function handleClaim(questId) {
     }
   } catch (e) {
     // 错误已在 store 中处理
+  }
+}
+
+async function handleBrainstormSuccess() {
+  try {
+    await questStore.reportProgress('daily_brainstorm', 1)
+    await questStore.fetchQuests()
+  } catch (e) {
+    // 静默失败
   }
 }
 

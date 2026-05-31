@@ -12,6 +12,9 @@
               </div>
               <h2 class="modal-name">{{ member.name }}</h2>
               <span class="modal-tag" :style="tagStyle">{{ member.tag }}</span>
+              <button class="interact-btn" :style="interactBtnStyle" @click="handleInteract">
+                与TA互动
+              </button>
             </div>
 
             <div class="modal-right">
@@ -51,10 +54,14 @@ const props = defineProps({
   member: { type: Object, required: true }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'interact'])
 
 function close() {
   emit('update:modelValue', false)
+}
+
+function handleInteract() {
+  emit('interact', props.member.id)
 }
 
 function onKeydown(e) {
@@ -82,6 +89,11 @@ const tagStyle = computed(() => ({
 
 const sectionTitleStyle = computed(() => ({
   color: props.member.color
+}))
+
+const interactBtnStyle = computed(() => ({
+  background: `linear-gradient(135deg, ${props.member.color}, ${props.member.color}dd)`,
+  boxShadow: `0 4px 15px ${props.member.color}40`
 }))
 </script>
 
@@ -177,6 +189,23 @@ const sectionTitleStyle = computed(() => ({
   border-radius: 20px;
   font-size: 13px;
   font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.interact-btn {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 24px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 1px;
+}
+
+.interact-btn:hover {
+  transform: translateY(-2px) scale(1.05);
 }
 
 .modal-right {

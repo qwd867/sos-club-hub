@@ -51,7 +51,7 @@
     </footer>
 
     <!-- 详情弹窗 -->
-    <MemberModal v-model="modalOpen" :member="selectedMember" />
+    <MemberModal v-model="modalOpen" :member="selectedMember" @interact="handleInteract" />
   </div>
 </template>
 
@@ -59,11 +59,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.js'
+import { useQuestStore } from '../stores/quests.js'
 import MemberCard from '../components/sos/MemberCard.vue'
 import MemberModal from '../components/sos/MemberModal.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const questStore = useQuestStore()
 const membersRef = ref(null)
 const modalOpen = ref(false)
 const selectedMember = ref({})
@@ -75,6 +77,19 @@ function scrollToMembers() {
 function openModal(member) {
   selectedMember.value = member
   modalOpen.value = true
+  // 触发查看角色相关的任务
+  if (member.id === 'yuki') {
+    questStore.reportProgress('daily_view_yuki', 1).catch(() => {})
+  }
+  questStore.reportProgress('weekly_view_details', 1).catch(() => {})
+}
+
+function handleInteract(characterId) {
+  questStore.reportProgress(`legend_interact_${characterId}`, 1).catch(() => {})
+  if (characterId === 'mikuru') {
+    questStore.reportProgress('daily_interact_mikuru', 1).catch(() => {})
+  }
+  questStore.reportProgress('weekly_interact_all', 1).catch(() => {})
 }
 
 function handleLogout() {

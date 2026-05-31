@@ -42,6 +42,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.js'
+import { useQuestStore } from '../stores/quests.js'
 import AuthLayout from '../layouts/AuthLayout.vue'
 
 const email = ref('')
@@ -50,6 +51,7 @@ const error = ref('')
 const isLoading = ref(false)
 const router = useRouter()
 const authStore = useAuthStore()
+const questStore = useQuestStore()
 
 async function handleLogin() {
   error.value = ''
@@ -57,6 +59,9 @@ async function handleLogin() {
   try {
     const result = await authStore.login(email.value, password.value)
     if (result.code === 200) {
+      // 触发任务进度
+      questStore.reportProgress('legend_first_login', 1).catch(() => {})
+      questStore.reportProgress('daily_checkin', 1).catch(() => {})
       router.push('/sos')
     } else {
       error.value = result.message
