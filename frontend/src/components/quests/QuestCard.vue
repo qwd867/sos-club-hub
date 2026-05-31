@@ -42,13 +42,10 @@
       >
         领取
       </button>
-      <button
-        v-else-if="isClaimed"
-        class="share-btn"
-        @click.stop="$emit('share', quest)"
-      >
-        分享
-      </button>
+      <div v-else-if="isClaimed" class="claimed-actions">
+        <span class="done-badge">已完成</span>
+        <button class="share-btn" @click.stop="$emit('share', quest)">分享</button>
+      </div>
       <span v-else-if="isLocked" class="status-text locked">未解锁</span>
       <span v-else class="status-text">进行中</span>
     </div>
@@ -325,6 +322,21 @@ const progressPercent = computed(() => {
 .share-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.claimed-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.done-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: #16a34a;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(34, 197, 94, 0.12);
 }
 
 .status-text {
