@@ -30,6 +30,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/sos/quests',
+      name: 'quests',
+      component: () => import('../views/QuestBoard.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/demo',
       redirect: '/sos'
     },

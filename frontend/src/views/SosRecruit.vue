@@ -9,9 +9,14 @@
     <!-- 顶部导航 -->
     <nav class="sos-nav">
       <div class="nav-brand">SOS团</div>
-      <button class="logout-btn" @click="handleLogout">
-        登出
-      </button>
+      <div class="nav-actions">
+        <router-link to="/sos/quests" class="nav-link"
+          >任务板</router-link
+        >
+        <button class="logout-btn" @click="handleLogout">
+          登出
+        </button>
+      </div>
     </nav>
 
     <!-- Hero -->
@@ -299,6 +304,29 @@ const members = [
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: 2px;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-link {
+  padding: 8px 20px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+}
+
+.nav-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5);
 }
 
 .logout-btn {
