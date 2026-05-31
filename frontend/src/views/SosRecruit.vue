@@ -52,6 +52,13 @@
 
     <!-- 详情弹窗 -->
     <MemberModal v-model="modalOpen" :member="selectedMember" @interact="handleInteract" />
+
+    <!-- Toast 提示 -->
+    <Transition name="toast">
+      <div v-if="toastVisible" class="toast-msg" :class="toastType">
+        {{ toastText }}
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -70,6 +77,21 @@ const membersRef = ref(null)
 const modalOpen = ref(false)
 const selectedMember = ref({})
 
+const toastVisible = ref(false)
+const toastText = ref('')
+const toastType = ref('success')
+let toastTimer = null
+
+function showToast(text, type = 'success') {
+  toastText.value = text
+  toastType.value = type
+  toastVisible.value = true
+  if (toastTimer) clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => {
+    toastVisible.value = false
+  }, 2500)
+}
+
 function scrollToMembers() {
   membersRef.value?.scrollIntoView({ behavior: 'smooth' })
 }
@@ -84,12 +106,17 @@ function openModal(member) {
   questStore.reportProgress('weekly_view_details', 1).catch(() => {})
 }
 
-function handleInteract(characterId) {
-  questStore.reportProgress(`legend_interact_${characterId}`, 1).catch(() => {})
-  if (characterId === 'mikuru') {
-    questStore.reportProgress('daily_interact_mikuru', 1).catch(() => {})
+async function handleInteract(characterId) {
+  try {
+    await questStore.reportProgress(`legend_interact_${characterId}`, 1)
+    if (characterId === 'mikuru') {
+      await questStore.reportProgress('daily_interact_mikuru', 1)
+    }
+    await questStore.reportProgress('weekly_interact_all', 1)
+    showToast(`与${selectedMember.value.name}互动成功！任务进度已更新`, 'success')
+  } catch (e) {
+    showToast('互动失败，请稍后重试', 'error')
   }
-  questStore.reportProgress('weekly_interact_all', 1).catch(() => {})
 }
 
 function handleLogout() {
@@ -496,6 +523,45 @@ const members = [
 .copyright {
   font-size: 13px;
   color: #aaa;
+}
+
+/* Toast */
+.toast-msg {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3000;
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.toast-msg.success {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.toast-msg.error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.35s ease;
+}
+
+.toast-enter-from {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+}
+
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
 }
 
 /* 响应式 */

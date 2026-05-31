@@ -12,7 +12,12 @@
               </div>
               <h2 class="modal-name">{{ member.name }}</h2>
               <span class="modal-tag" :style="tagStyle">{{ member.tag }}</span>
-              <button class="interact-btn" :style="interactBtnStyle" @click="handleInteract">
+              <button
+                class="interact-btn"
+                :class="{ clicked: interactClicked }"
+                :style="interactBtnStyle"
+                @click="handleInteract"
+              >
                 与TA互动
               </button>
             </div>
@@ -47,7 +52,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
@@ -60,7 +65,13 @@ function close() {
   emit('update:modelValue', false)
 }
 
+const interactClicked = ref(false)
+
 function handleInteract() {
+  interactClicked.value = true
+  setTimeout(() => {
+    interactClicked.value = false
+  }, 300)
   emit('interact', props.member.id)
 }
 
@@ -206,6 +217,16 @@ const interactBtnStyle = computed(() => ({
 
 .interact-btn:hover {
   transform: translateY(-2px) scale(1.05);
+}
+
+.interact-btn.clicked {
+  animation: btnClick 0.3s ease;
+}
+
+@keyframes btnClick {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.9); }
+  100% { transform: scale(1); }
 }
 
 .modal-right {
