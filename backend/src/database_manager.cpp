@@ -434,7 +434,14 @@ bool DatabaseManager::claim_quest_reward(int64_t user_id, int quest_id, int poin
     if (!success || sqlite3_changes(db_) == 0) return false;
 
     if (points_reward > 0) {
-        return add_quest_points(user_id, points_reward);
+        const char* points_sql = "UPDATE users SET quest_points = quest_points + ? WHERE id = ?;";
+        sqlite3_stmt* points_stmt = nullptr;
+        if (sqlite3_prepare_v2(db_, points_sql, -1, &points_stmt, nullptr) != SQLITE_OK) return false;
+        sqlite3_bind_int(points_stmt, 1, points_reward);
+        sqlite3_bind_int64(points_stmt, 2, user_id);
+        bool points_success = sqlite3_step(points_stmt) == SQLITE_DONE;
+        sqlite3_finalize(points_stmt);
+        return points_success;
     }
     return true;
 }

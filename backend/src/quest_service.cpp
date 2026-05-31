@@ -180,12 +180,15 @@ nlohmann::json QuestService::claimReward(int64_t user_id, int quest_id) {
         }
     }
 
+    if (status == "claimed") {
+        return HttpResponse::error("Reward already claimed", 4004);
+    }
     if (status != "completed") {
         return HttpResponse::error("Quest not completed", 4003);
     }
 
     if (!db_.claim_quest_reward(user_id, quest_id, points_reward)) {
-        return HttpResponse::error("Reward already claimed or quest not found", 4004);
+        return HttpResponse::error("Quest not found", 4001);
     }
 
     auto now = std::chrono::system_clock::now();
