@@ -214,8 +214,9 @@ const members = [
 
 <style scoped>
 .sos-page {
-  min-height: 100vh;
-  position: relative;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
   overflow-x: hidden;
   font-family:
     'PingFang SC',
