@@ -351,19 +351,47 @@ std::vector<nlohmann::json> DatabaseManager::get_all_quests() {
 
 bool DatabaseManager::update_quest_progress(int64_t user_id, int quest_id, int increment) {
     std::lock_guard<std::mutex> lock(mutex_);
-    const char* sql = R"(
+
+    // 先获取 target_progress 和 current_progress
+    const char* select_sql = "SELECT q.target_progress, uq.current_progress, uq.status FROM quests q JOIN user_quests uq ON q.id = uq.quest_id WHERE uq.user_id = ? AND uq.quest_id = ?;";
+    sqlite3_stmt* select_stmt = nullptr;
+    if (sqlite3_prepare_v2(db_, select_sql, -1, &select_stmt, nullptr) != SQLITE_OK) return false;
+    sqlite3_bind_int64(select_stmt, 1, user_id);
+    sqlite3_bind_int(select_stmt, 2, quest_id);
+
+    int target_progress = 1;
+    int current_progress = 0;
+    std::string status = "available";
+    if (sqlite3_step(select_stmt) == SQLITE_ROW) {
+        target_progress = sqlite3_column_int(select_stmt, 0);
+        current_progress = sqlite3_column_int(select_stmt, 1);
+        status = reinterpret_cast<const char*>(sqlite3_column_text(select_stmt, 2));
+    }
+    sqlite3_finalize(select_stmt);
+
+    // 如果任务已锁定，先解锁
+    if (status == "locked") {
+        status = "available";
+    }
+
+    int new_progress = current_progress + increment;
+    if (new_progress > target_progress) new_progress = target_progress;
+    bool is_completed = new_progress >= target_progress;
+
+    const char* update_sql = R"(
         UPDATE user_quests
-        SET current_progress = MIN(current_progress + ?, target_progress),
-            status = CASE WHEN current_progress + ? >= target_progress THEN 'completed' ELSE 'in_progress' END,
-            completed_at = CASE WHEN current_progress + ? >= target_progress AND completed_at IS NULL THEN datetime('now') ELSE completed_at END,
+        SET current_progress = ?,
+            status = ?,
+            completed_at = CASE WHEN ? AND completed_at IS NULL THEN datetime('now') ELSE completed_at END,
+            unlocked_at = CASE WHEN unlocked_at IS NULL THEN datetime('now') ELSE unlocked_at END,
             updated_at = datetime('now')
         WHERE user_id = ? AND quest_id = ?;
     )";
     sqlite3_stmt* stmt = nullptr;
-    if (sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
-    sqlite3_bind_int(stmt, 1, increment);
-    sqlite3_bind_int(stmt, 2, increment);
-    sqlite3_bind_int(stmt, 3, increment);
+    if (sqlite3_prepare_v2(db_, update_sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
+    sqlite3_bind_int(stmt, 1, new_progress);
+    sqlite3_bind_text(stmt, 2, is_completed ? "completed" : "in_progress", -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 3, is_completed ? 1 : 0);
     sqlite3_bind_int64(stmt, 4, user_id);
     sqlite3_bind_int(stmt, 5, quest_id);
     bool success = sqlite3_step(stmt) == SQLITE_DONE;
