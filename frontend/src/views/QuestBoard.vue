@@ -109,6 +109,7 @@ const activeTab = ref('daily')
 const confettiRef = ref(null)
 const showClaimModal = ref(false)
 const claimPoints = ref(0)
+const claimQuestName = ref('')
 const showCongratsModal = ref(false)
 const showBrainstormModal = ref(false)
 const prevDailyCompleted = ref(0)
@@ -164,6 +165,7 @@ async function handleClaim(questId) {
 
     await questStore.claimReward(questId)
     claimPoints.value = quest?.points_reward || 0
+    claimQuestName.value = quest?.name || '神秘任务'
     showClaimModal.value = true
     showToast(`成功领取 ${quest?.points_reward || 0} SOSpt！`, 'success')
     if (confettiRef.value) confettiRef.value.spawn()
@@ -189,7 +191,10 @@ async function handleBrainstormSuccess() {
 }
 
 function handleShare() {
-  const text = `我刚刚在SOS团任务板完成了任务，获得了${claimPoints.value}贡献值！一起来加入凉宫春日的团吧！`
+  const name = claimQuestName.value || '神秘任务'
+  const text = `我刚刚在SOS团任务板完成了「${name}」，获得了${claimPoints.value} SOSpt！
+
+——让世界变得更热闹的凉宫春日的团，一起来加入吧！`
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text)
     alert('分享文案已复制到剪贴板！')
