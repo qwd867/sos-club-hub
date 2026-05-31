@@ -61,7 +61,7 @@ async function handleRegister() {
   try {
     const result = await authStore.register(email.value, password.value, username.value)
     if (result.code === 200) {
-      router.push('/demo')
+      router.push('/sos')
     } else {
       error.value = result.message
     }

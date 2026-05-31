@@ -57,7 +57,7 @@ async function handleLogin() {
   try {
     const result = await authStore.login(email.value, password.value)
     if (result.code === 200) {
-      router.push('/demo')
+      router.push('/sos')
     } else {
       error.value = result.message
     }

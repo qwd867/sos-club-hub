@@ -24,10 +24,14 @@ const router = createRouter({
       component: () => import('../views/ForgotPassword.vue'),
     },
     {
-      path: '/demo',
-      name: 'demo',
-      component: () => import('../views/Demo.vue'),
+      path: '/sos',
+      name: 'sos',
+      component: () => import('../views/SosRecruit.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/demo',
+      redirect: '/sos'
     },
   ],
 })
